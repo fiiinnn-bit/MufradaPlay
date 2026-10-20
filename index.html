@@ -3,25 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mufradat Game — Prototipe Demonstrasi</title>
-  <meta name="description" content="Prototipe media pembelajaran mufradat Bahasa Arab berbasis permainan interaktif untuk siswa kelas X Madrasah Aliyah." />
-
-  <!-- Font: Poppins (Indonesia) dan Amiri (Arab) -->
+  <title>MufradaPlay — Platform Interaktif Belajar Kosakata Bahasa Arab</title>
+  <meta name="description" content="MufradaPlay: platform interaktif belajar kosakata Bahasa Arab untuk siswa kelas X Madrasah Aliyah." />
+  <link rel="icon" href="assets/logo-round.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS via CDN (dipakai untuk tata letak dasar) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            laut: { 50:'#eef9fc', 100:'#d5f0f7', 200:'#aee1ef', 300:'#77cde3', 400:'#3ab3d6', 500:'#1698bf', 600:'#0b7a9e', 700:'#0b6280', 800:'#0d5068', 900:'#0f4356' },
-            emas: { 300:'#f7d77a', 400:'#f2c14e', 500:'#e5a92c' }
-          },
           fontFamily: {
             sans: ['Poppins', 'sans-serif'],
             arab: ['Amiri', 'Noto Naskh Arabic', 'serif']
@@ -36,17 +30,16 @@
 
 <body class="min-h-screen antialiased">
 
-  <!-- Latar belakang blur -->
   <div class="blob blob-1" aria-hidden="true"></div>
   <div class="blob blob-2" aria-hidden="true"></div>
 
-  <!-- ============ 1. HEADER ============ -->
+  <!-- ============ HEADER ============ -->
   <header class="site-header sticky top-0 z-40">
     <div class="container-app flex items-center justify-between h-16 md:h-20">
-      <a href="#" class="brand" data-nav="beranda" aria-label="Mufradat Game — Beranda">
-        <span class="brand-icon"><i data-lucide="book-open"></i></span>
-        <span class="brand-name">Mufradat <span class="text-accent">Game</span></span>
-      </a>
+      <a href="#" class="brand" data-nav="beranda" aria-label="MufradaPlay — Beranda">
+  <img src="assets/logo-round.png" alt="Logo MufradaPlay" class="logo-round" />
+  <span class="brand-name">MufradaPlay</span>
+</a>
 
       <nav class="hidden md:flex items-center gap-1" aria-label="Navigasi utama">
         <button class="nav-link" data-nav="beranda">Beranda</button>
@@ -64,7 +57,6 @@
       </div>
     </div>
 
-    <!-- Menu untuk layar HP -->
     <nav id="mobile-menu" class="mobile-menu hidden md:hidden" aria-label="Menu mobile">
       <button class="nav-link" data-nav="beranda">Beranda</button>
       <button class="nav-link" data-nav="materi">Materi</button>
@@ -76,11 +68,11 @@
 
   <main class="container-app py-6 md:py-10">
 
-    <!-- ============ 2. HERO / BERANDA ============ -->
+    <!-- ============ BERANDA ============ -->
     <section id="view-beranda" class="view">
       <div class="hero">
         <div>
-          <span class="hero-kicker"><i data-lucide="sparkles"></i> Prototipe Demonstrasi</span>
+          <span class="hero-kicker"><i data-lucide="sparkles"></i> Belajar Bahasa Arab</span>
           <h1 class="hero-title">Belajar Mufradat, <span>Jadi Lebih Seru!</span></h1>
           <p class="hero-desc">Jelajahi kosakata Bahasa Arab melalui permainan interaktif yang menyenangkan dan mudah digunakan.</p>
           <div class="hero-actions">
@@ -89,45 +81,29 @@
           </div>
         </div>
 
-        <!-- Ilustrasi sederhana (SVG) -->
-        <div class="hero-art float" aria-hidden="true">
-          <svg viewBox="0 0 360 300" role="img" aria-label="Ilustrasi huruf Arab dan kartu kosakata">
-            <defs>
-              <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#38b6d8" />
-                <stop offset="1" stop-color="#0b6280" />
-              </linearGradient>
-            </defs>
-            <rect x="20" y="30" width="320" height="240" rx="28" fill="url(#heroGrad)" />
-            <circle cx="296" cy="72" r="24" fill="#f2c14e" />
-            <rect x="58" y="84" width="150" height="112" rx="20" fill="#ffffff" />
-            <text x="133" y="170" text-anchor="middle" font-family="Amiri, serif" font-size="92" fill="#0b6280">ب</text>
-            <rect x="176" y="150" width="136" height="82" rx="18" fill="#fff4d1" />
-            <text x="244" y="204" text-anchor="middle" font-family="Amiri, serif" font-size="34" fill="#1b3a4b">أَهْلًا</text>
-            <path d="M58 244 q 40 -18 80 0 t 80 0" stroke="#ffffff" stroke-width="6" fill="none" opacity=".6" />
-          </svg>
+        <div class="hero-art float">
+          <img src="assets/logo-round.png" alt="Logo MufradaPlay" class="hero-logo-round" />
         </div>
       </div>
     </section>
 
-    <!-- ============ 3. PILIHAN MATERI ============ -->
+    <!-- ============ MATERI ============ -->
     <section id="view-materi" class="view hidden">
       <div class="section-head">
         <div>
           <h1 class="page-title">Pilihan Materi</h1>
-          <p class="page-sub">Tiga bab pertama buku Bahasa Arab MA Kelas X.</p>
+          <p class="page-sub">Kosakata dikelompokkan menurut tiga bab pertama buku Bahasa Arab MA Kelas X.</p>
         </div>
       </div>
       <div id="materi-cards" class="grid-cards"></div>
     </section>
 
-    <!-- Detail materi (kosakata per bab) -->
     <section id="view-detail" class="view hidden">
       <button class="btn btn-back mb-4" data-nav="materi"><i data-lucide="arrow-left"></i> Kembali ke Materi</button>
       <div id="detail-content"></div>
     </section>
 
-    <!-- ============ 4. PILIHAN PERMAINAN ============ -->
+    <!-- ============ PERMAINAN ============ -->
     <section id="view-permainan" class="view hidden">
       <div class="section-head">
         <div>
@@ -143,27 +119,26 @@
         <article class="card card-hover game-card">
           <div class="game-icon"><i data-lucide="image"></i></div>
           <h3 class="chapter-theme">Permainan A — Tebak Gambar</h3>
-          <p class="chapter-desc">Lihat gambar objek, lalu pilih kosakata Arab yang sesuai dari empat pilihan.</p>
+          <p class="chapter-desc">Lihat gambar, lalu pilih kosakata Arab yang sesuai dari empat pilihan.</p>
           <button class="btn btn-primary" data-game-start="A"><i data-lucide="play"></i> Mainkan</button>
         </article>
 
         <article class="card card-hover game-card">
           <div class="game-icon"><i data-lucide="link"></i></div>
           <h3 class="chapter-theme">Permainan B — Cocokkan Arti</h3>
-          <p class="chapter-desc">Klik kosakata Arab, lalu klik artinya dalam Bahasa Indonesia yang tepat.</p>
+          <p class="chapter-desc">Pilih kosakata Arab, lalu pilih artinya dalam Bahasa Indonesia.</p>
           <button class="btn btn-primary" data-game-start="B"><i data-lucide="play"></i> Mainkan</button>
         </article>
 
         <article class="card card-hover game-card">
           <div class="game-icon"><i data-lucide="type"></i></div>
           <h3 class="chapter-theme">Permainan C — Susun Huruf</h3>
-          <p class="chapter-desc">Susun huruf-huruf yang diacak menjadi kosakata Arab sesuai artinya.</p>
+          <p class="chapter-desc">Susun huruf yang diacak menjadi kosakata Arab sesuai artinya.</p>
           <button class="btn btn-primary" data-game-start="C"><i data-lucide="play"></i> Mainkan</button>
         </article>
       </div>
     </section>
 
-    <!-- Area permainan -->
     <section id="view-game" class="view hidden">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <button class="btn btn-back" data-nav="permainan"><i data-lucide="arrow-left"></i> Pilihan Permainan</button>
@@ -176,7 +151,7 @@
       </div>
     </section>
 
-    <!-- ============ 5. HASIL PERMAINAN ============ -->
+    <!-- ============ HASIL ============ -->
     <section id="view-hasil" class="view hidden">
       <div class="card result-card">
         <p class="label-sm" id="hasil-chapter"></p>
@@ -207,38 +182,36 @@
       </div>
     </section>
 
-    <!-- ============ 6. TENTANG ============ -->
+    <!-- ============ TENTANG ============ -->
     <section id="view-tentang" class="view hidden">
       <div class="section-head">
-        <h1 class="page-title">Tentang Website</h1>
+        <h1 class="page-title">Tentang MufradaPlay</h1>
       </div>
       <div class="card about-card">
-        <p class="lead">Media pembelajaran mufradat Bahasa Arab berbasis permainan interaktif untuk siswa kelas X Madrasah Aliyah.</p>
-        <p class="muted">Prototipe awal untuk rancangan penelitian pengembangan media pembelajaran Bahasa Arab.</p>
+        <p class="lead">Platform interaktif belajar kosakata Bahasa Arab untuk siswa kelas X Madrasah Aliyah.</p>
+        <p class="muted">MufradaPlay menghadirkan kosakata dalam bentuk permainan: menebak gambar, mencocokkan arti, dan menyusun huruf.</p>
 
         <h3 class="about-sub">Sumber kosakata</h3>
-        <p class="muted">Kosakata diambil dari glosarium buku Bahasa Arab MA Kelas X (Kementerian Agama RI, cetakan 2020).</p>
-
-        <p class="note">Pengelompokan kosakata per bab masih perlu diverifikasi dengan teks bab. Website ini belum divalidasi oleh ahli dan belum diuji coba pada siswa.</p>
+        <p class="muted">Kosakata diambil dari teks bacaan, daftar mufradat, dan latihan buku Bahasa Arab MA Kelas X (Kementerian Agama RI, 2020), Bab 1–3.</p>
       </div>
     </section>
 
   </main>
 
-  <!-- ============ 7. FOOTER ============ -->
+  <!-- ============ FOOTER ============ -->
   <footer class="site-footer">
     <div class="container-app py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div>
-        <p class="brand-name">Mufradat Game</p>
-        <p class="muted text-sm">Media pembelajaran mufradat Bahasa Arab berbasis permainan interaktif.</p>
+        <p class="brand-name">MufradaPlay</p>
+        <p class="muted text-sm">Platform interaktif belajar kosakata Bahasa Arab.</p>
       </div>
-      <p class="muted text-sm"> © 2026 M Nasyith Fikri Al Afin<br />
-        Mahasiswa IAI Badrus Sholeh Purwoasri Kediri.
+      <p class="copyright">
+        © 2026 M Nasyith Fikri Al Afin<br />
+        IAI Badrus Sholeh Purwoasri Kediri
       </p>
     </div>
   </footer>
 
-  <!-- Lucide Icons via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="script.js"></script>
 </body>

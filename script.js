@@ -1,24 +1,28 @@
 /* =========================================================
-   Mufradat Game — script.js
-   Berisi: data kosakata, navigasi, mode malam,
-   dan logika tiga permainan (A, B, C).
+   MufradaPlay — script.js
+   Kosakata dari buku Bahasa Arab MA Kelas X (Bab 1–3),
+   tiga permainan, navigasi, dan mode malam.
    ========================================================= */
 
-/* ---------- 1. DATA ---------- */
+/* ---------- DATA ---------- */
 
-// Jumlah soal per permainan
-const QUESTION_COUNT = 6;
+// 10 soal per permainan (A, B, C) untuk setiap bab
+const QUESTION_COUNT = 10;
 
 const GAME_TITLES = {
-  A: 'Permainan A — Tebak Gambar',
-  B: 'Permainan B — Cocokkan Arti',
-  C: 'Permainan C — Susun Huruf'
+  A: 'Tebak Gambar',
+  B: 'Cocokkan Arti',
+  C: 'Susun Huruf'
 };
 
 /*
-  Sumber kosakata: glosarium buku "Bahasa Arab MA Kelas X" (Kemenag RI, 2020),
-  halaman buku 90, 91, 93, 95 — dicek secara visual.
-  Pengelompokan per bab berdasarkan tema, perlu diverifikasi dengan teks bab.
+  Sumber:
+  - Bab 1: teks bacaan, biodata, dan latihan pelajaran 1 (halaman buku 5–23)
+  - Bab 2: daftar "استمع إلى المفردات وافهمها" (halaman buku 19),
+           teks bacaan (halaman buku 21), dan latihan (halaman buku 22–29)
+  - Bab 3: daftar "استمع إلى المفردات وافهمها" (halaman buku 31–32),
+           dan latihan pelajaran 3
+  Harakat dibaca dari gambar halaman buku. Silakan dicek ulang dengan buku.
 */
 const CHAPTERS = [
   {
@@ -26,14 +30,32 @@ const CHAPTERS = [
     label: 'Bab 1',
     theme: 'Salam dan Perkenalan',
     arabTitle: 'التَّحِيَّاتُ وَالتَّعَارُفُ',
-    description: 'Ungkapan salam dan kosakata dasar untuk memperkenalkan diri.',
+    description: 'Ungkapan salam, perkenalan diri, data pribadi, dan angka dasar.',
     words: [
-      { arab: 'أَهْلًا', arti: 'Selamat datang', emoji: '👋' },
-      { arab: 'تَعَارُفٌ', arti: 'Kenalan', emoji: '🤝' },
+      { arab: 'وَاحِدٌ', arti: 'Satu', emoji: '1️⃣' },
+      { arab: 'اِثْنَانِ', arti: 'Dua', emoji: '2️⃣' },
+      { arab: 'ثَلَاثَةٌ', arti: 'Tiga', emoji: '3️⃣' },
+      { arab: 'أَرْبَعَةٌ', arti: 'Empat', emoji: '4️⃣' },
+      { arab: 'خَمْسَةٌ', arti: 'Lima', emoji: '5️⃣' },
+      { arab: 'تِلْمِيذٌ', arti: 'Siswa', emoji: '🧑‍🎓' },
+      { arab: 'جَدِيدٌ', arti: 'Baru', emoji: '🆕' },
+      { arab: 'يَتَعَلَّمُ', arti: 'Belajar', emoji: '🧠' },
+      { arab: 'الصَّفُّ', arti: 'Kelas', emoji: '🚪' },
+      { arab: 'الْمَدْرَسَةُ', arti: 'Sekolah', emoji: '🏫' },
+      { arab: 'شَخْصِيَّةٌ', arti: 'Pribadi', emoji: '🙋' },
+      { arab: 'بِطَاقَةٌ', arti: 'Kartu', emoji: '🪪' },
       { arab: 'اِسْمٌ', arti: 'Nama', emoji: '🏷️' },
-      { arab: 'صَبَاحٌ', arti: 'Pagi', emoji: '🌅' },
+      { arab: 'عُنْوَانٌ', arti: 'Alamat', emoji: '📍' },
+      { arab: 'رَقْمٌ', arti: 'Nomor', emoji: '🔢' },
+      { arab: 'هَاتِفٌ', arti: 'Telepon', emoji: '☎️' },
+      { arab: 'عُمْرٌ', arti: 'Umur', emoji: '⏳' },
+      { arab: 'تَعَارُفٌ', arti: 'Perkenalan', emoji: '🤝' },
       { arab: 'صَدِيقٌ', arti: 'Teman', emoji: '🧑‍🤝‍🧑' },
-      { arab: 'تَحَدَّثَ', arti: 'Berbicara', emoji: '💬' }
+      { arab: 'صَبَاحٌ', arti: 'Pagi', emoji: '🌅' },
+      { arab: 'أَهْلًا', arti: 'Selamat datang', emoji: '👋' },
+      { arab: 'تَحَدَّثَ', arti: 'Berbicara', emoji: '💬' },
+      { arab: 'أَيْنَ', arti: 'Di mana?', emoji: '❓' },
+      { arab: 'بَعِيدٌ', arti: 'Jauh', emoji: '🛣️' }
     ]
   },
   {
@@ -41,16 +63,34 @@ const CHAPTERS = [
     label: 'Bab 2',
     theme: 'Keluarga dan Rumah',
     arabTitle: 'الْأُسْرَةُ وَالْبَيْتُ',
-    description: 'Kosakata tentang anggota keluarga dan bagian-bagian rumah.',
+    description: 'Anggota keluarga, bagian-bagian rumah, dan kegiatan sehari-hari.',
     words: [
       { arab: 'أَبٌ', arti: 'Ayah', emoji: '👨' },
       { arab: 'أُمٌّ', arti: 'Ibu', emoji: '👩' },
-      { arab: 'أَخٌ', arti: 'Saudara (laki-laki)', emoji: '👦' },
-      { arab: 'أُخْتٌ', arti: 'Saudara (perempuan)', emoji: '👧' },
-      { arab: 'أُسْرَةٌ', arti: 'Keluarga', emoji: '👨‍👩‍👧' },
-      { arab: 'بَيْتٌ', arti: 'Rumah', emoji: '🏠' },
-      { arab: 'مَطْبَخٌ', arti: 'Dapur', emoji: '🍳' },
-      { arab: 'بُسْتَانٌ', arti: 'Kebun', emoji: '🌳' }
+      { arab: 'أَخِي الْكَبِيرُ', arti: 'Kakak laki-laki', emoji: '🧑' },
+      { arab: 'أَخِي الصَّغِيرُ', arti: 'Adik laki-laki', emoji: '👦' },
+      { arab: 'أُخْتِي الْكَبِيرَةُ', arti: 'Kakak perempuan', emoji: '👩‍🦰' },
+      { arab: 'أُخْتِي الصَّغِيرَةُ', arti: 'Adik perempuan', emoji: '👧' },
+      { arab: 'رَبَّةُ الْبَيْتِ', arti: 'Ibu rumah tangga', emoji: '👩‍🍳' },
+      { arab: 'الْبَوَّابَةُ', arti: 'Gerbang', emoji: '🚧' },
+      { arab: 'الشُّرْفَةُ', arti: 'Teras', emoji: '🏡' },
+      { arab: 'الطَّابَقُ الْعُلْوِيُّ', arti: 'Lantai atas', emoji: '🔼' },
+      { arab: 'الطَّابَقُ السُّفْلِيُّ', arti: 'Lantai bawah', emoji: '🔽' },
+      { arab: 'غُرْفَةُ الْجُلُوسِ', arti: 'Ruang tamu', emoji: '🛋️' },
+      { arab: 'غُرْفَةُ النَّوْمِ', arti: 'Kamar tidur', emoji: '🛏️' },
+      { arab: 'غُرْفَةُ الْأَكْلِ', arti: 'Ruang makan', emoji: '🍽️' },
+      { arab: 'الْمَطْبَخُ', arti: 'Dapur', emoji: '🍳' },
+      { arab: 'الْحَمَّامُ', arti: 'Kamar mandi', emoji: '🚿' },
+      { arab: 'غُرْفَةُ الْمُذَاكَرَةِ', arti: 'Ruang belajar', emoji: '📚' },
+      { arab: 'النَّافِذَةُ', arti: 'Jendela', emoji: '🪟' },
+      { arab: 'أَكَلَ', arti: 'Makan', emoji: '🍚' },
+      { arab: 'أَنَامُ', arti: 'Tidur', emoji: '😴' },
+      { arab: 'أَسْتَيْقِظُ', arti: 'Bangun', emoji: '🌞' },
+      { arab: 'أَغْسِلُ الْمَلَابِسَ', arti: 'Mencuci pakaian', emoji: '🧺' },
+      { arab: 'أُشَاهِدُ التِّلْفِزْيُونَ', arti: 'Menonton TV', emoji: '📺' },
+      { arab: 'أَطْبَخُ', arti: 'Memasak', emoji: '🍲' },
+      { arab: 'أَكْتُبُ', arti: 'Menulis', emoji: '✍️' },
+      { arab: 'أَقْرَأُ', arti: 'Membaca', emoji: '📖' }
     ]
   },
   {
@@ -58,43 +98,54 @@ const CHAPTERS = [
     label: 'Bab 3',
     theme: 'Madrasah dan Lingkungan Sekitarnya',
     arabTitle: 'الْمَدْرَسَةُ وَالْبِيئَةُ الْمُحِيْطَةُ بِهَا',
-    description: 'Kosakata tentang madrasah dan lingkungan di sekitarnya.',
+    description: 'Mata pelajaran, perlengkapan belajar, hari dalam seminggu, dan lingkungan sekolah.',
     words: [
-      { arab: 'مَدْرَسَةٌ', arti: 'Sekolah', emoji: '🏫' },
-      { arab: 'صَفٌّ', arti: 'Kelas', emoji: '🚪' },
+      { arab: 'الرِّيَاضِيَّاتُ', arti: 'Matematika', emoji: '➗' },
+      { arab: 'التَّارِيخُ', arti: 'Sejarah', emoji: '📜' },
+      { arab: 'الْفَنُّ', arti: 'Seni', emoji: '🎨' },
+      { arab: 'الْحَاسُوبُ', arti: 'Komputer', emoji: '💻' },
+      { arab: 'الْجَامِعَةُ', arti: 'Universitas', emoji: '🎓' },
+      { arab: 'اللُّغَةُ', arti: 'Bahasa', emoji: '🗣️' },
+      { arab: 'الْجَدْوَلُ الدِّرَاسِيُّ', arti: 'Jadwal pelajaran', emoji: '🗓️' },
+      { arab: 'الْعَامُ الدِّرَاسِيُّ', arti: 'Tahun ajaran', emoji: '📅' },
+      { arab: 'عُطْلَةُ الْأُسْبُوعِ', arti: 'Akhir pekan', emoji: '🏖️' },
+      { arab: 'الِامْتِحَانَاتُ', arti: 'Ujian', emoji: '📝' },
+      { arab: 'السَّكَنُ', arti: 'Asrama', emoji: '🏘️' },
+      { arab: 'سَرِيرٌ', arti: 'Ranjang', emoji: '🛏️' },
+      { arab: 'جَزَانَةُ الْمَلَابِسِ', arti: 'Lemari pakaian', emoji: '👔' },
+      { arab: 'الْغَدَاءُ', arti: 'Makan siang', emoji: '🍱' },
+      { arab: 'الْعَشَاءُ', arti: 'Makan malam', emoji: '🥘' },
+      { arab: 'الْمُدَرِّسُ الْمُشْرِفُ', arti: 'Guru pembimbing', emoji: '👨‍🏫' },
       { arab: 'سَبُّورَةٌ', arti: 'Papan tulis', emoji: '📋' },
-      { arab: 'كُرْسِيٌّ', arti: 'Kursi', emoji: '🪑' },
+      { arab: 'طَبَاشِيرُ', arti: 'Kapur tulis', emoji: '⚪' },
+      { arab: 'مِسْطَرَةٌ', arti: 'Penggaris', emoji: '📏' },
+      { arab: 'مِمْحَاةٌ', arti: 'Penghapus', emoji: '🧽' },
+      { arab: 'سَاعَةُ الْجِدَارِ', arti: 'Jam dinding', emoji: '🕰️' },
       { arab: 'مَكْتَبَةٌ', arti: 'Perpustakaan', emoji: '📚' },
-      { arab: 'مَسْجِدٌ', arti: 'Masjid', emoji: '🕌' },
-      { arab: 'مَدِينَةٌ', arti: 'Kota', emoji: '🏙️' },
-      { arab: 'سَاحَةٌ', arti: 'Halaman', emoji: '🏞️' },
-      { arab: 'مَقْصَفٌ', arti: 'Kantin', emoji: '🥤' },
-      { arab: 'مُدَرِّسٌ', arti: 'Bapak guru', emoji: '👨‍🏫' },
-      { arab: 'كُرَّاسَةٌ', arti: 'Buku tulis', emoji: '📓' }
+      { arab: 'يَوْمُ الْأَحَدِ', arti: 'Hari Minggu', emoji: '📅' },
+      { arab: 'يَوْمُ الْجُمُعَةِ', arti: 'Hari Jumat', emoji: '🕌' },
+      { arab: 'يَوْمُ السَّبْتِ', arti: 'Hari Sabtu', emoji: '🌴' }
     ]
   }
 ];
 
-/* ---------- 2. STATE (data yang berubah saat dipakai) ---------- */
+/* ---------- STATE ---------- */
 
 const app = {
-  chapterId: 'bab1',   // bab yang sedang dipilih
-  gameKey: null,       // 'A', 'B', atau 'C'
-  game: null,          // data permainan yang sedang berjalan
-  lastResult: null     // hasil permainan terakhir
+  chapterId: 'bab1',
+  gameKey: null,
+  game: null,
+  lastResult: null
 };
 
-/* ---------- 3. FUNGSI BANTU ---------- */
+/* ---------- FUNGSI BANTU ---------- */
 
-function $(selector) {
-  return document.querySelector(selector);
-}
+function $(selector) { return document.querySelector(selector); }
 
 function getChapter(chapterId) {
   return CHAPTERS.find((chapter) => chapter.id === chapterId) || CHAPTERS[0];
 }
 
-// Mengacak urutan array (Fisher-Yates)
 function shuffle(list) {
   const copy = [...list];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -104,22 +155,17 @@ function shuffle(list) {
   return copy;
 }
 
-// Mengambil sejumlah item acak
-function pickRandom(list, count) {
-  return shuffle(list).slice(0, count);
-}
+function pickRandom(list, count) { return shuffle(list).slice(0, count); }
 
-// Memecah kata Arab menjadi "huruf + harakat" (satu huruf utuh per elemen)
+// Memecah kata Arab menjadi "huruf + harakat"
 function splitArabicLetters(word) {
   return word.match(/[\s\S][\u064B-\u065F\u0670]*/g) || [];
 }
 
-// Membuat ubin huruf yang sudah diacak untuk Permainan C
 function makeLetterTiles(word) {
   const letters = splitArabicLetters(word).map((text, id) => ({ text, id }));
   let tiles = shuffle(letters);
   let attempts = 0;
-  // Pastikan urutan acak tidak sama dengan urutan asli
   while (attempts < 10 && letters.length > 1 && tiles.every((tile, i) => tile.id === i)) {
     tiles = shuffle(letters);
     attempts++;
@@ -134,17 +180,13 @@ function refreshIcons() {
 }
 
 function feedbackHtml(feedback) {
-  if (!feedback) {
-    return '<div class="feedback feedback-empty" aria-live="polite"></div>';
-  }
+  if (!feedback) return '<div class="feedback feedback-empty" aria-live="polite"></div>';
   return `<div class="feedback feedback-${feedback.type}" role="status">${feedback.text}</div>`;
 }
 
-function currentQuestion() {
-  return app.game.questions[app.game.index];
-}
+function currentQuestion() { return app.game.questions[app.game.index]; }
 
-/* ---------- 4. NAVIGASI & TAMPILAN ---------- */
+/* ---------- NAVIGASI ---------- */
 
 function setActiveNav(navName) {
   document.querySelectorAll('.nav-link').forEach((link) => {
@@ -158,12 +200,10 @@ function closeMobileMenu() {
 }
 
 function toggleMobileMenu() {
-  const menu = $('#mobile-menu');
-  const isHidden = menu.classList.toggle('hidden');
+  const isHidden = $('#mobile-menu').classList.toggle('hidden');
   $('#menu-toggle').setAttribute('aria-expanded', String(!isHidden));
 }
 
-// Menampilkan satu "halaman" dan menyembunyikan yang lain
 function showView(viewName, navName = viewName) {
   document.querySelectorAll('.view').forEach((view) => view.classList.add('hidden'));
 
@@ -172,7 +212,7 @@ function showView(viewName, navName = viewName) {
 
   view.classList.remove('hidden');
   view.classList.remove('view-enter');
-  void view.offsetWidth; // memulai ulang animasi
+  void view.offsetWidth;
   view.classList.add('view-enter');
 
   setActiveNav(navName);
@@ -181,7 +221,7 @@ function showView(viewName, navName = viewName) {
   refreshIcons();
 }
 
-/* ---------- 5. MODE MALAM ---------- */
+/* ---------- MODE MALAM ---------- */
 
 function applyTheme(isDark) {
   document.documentElement.classList.toggle('dark', isDark);
@@ -191,11 +231,7 @@ function applyTheme(isDark) {
 
 function initTheme() {
   let savedTheme = null;
-  try {
-    savedTheme = localStorage.getItem('mufradat-theme');
-  } catch (error) {
-    savedTheme = null; // jika penyimpanan browser diblokir, lanjut tanpa error
-  }
+  try { savedTheme = localStorage.getItem('mufradaplay-theme'); } catch (error) { savedTheme = null; }
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   applyTheme(savedTheme ? savedTheme === 'dark' : prefersDark);
 }
@@ -203,14 +239,10 @@ function initTheme() {
 function toggleTheme() {
   const isDark = !document.documentElement.classList.contains('dark');
   applyTheme(isDark);
-  try {
-    localStorage.setItem('mufradat-theme', isDark ? 'dark' : 'light');
-  } catch (error) {
-    // abaikan jika penyimpanan tidak tersedia
-  }
+  try { localStorage.setItem('mufradaplay-theme', isDark ? 'dark' : 'light'); } catch (error) { /* abaikan */ }
 }
 
-/* ---------- 6. HALAMAN MATERI ---------- */
+/* ---------- MATERI ---------- */
 
 function renderChapterCards() {
   $('#materi-cards').innerHTML = CHAPTERS.map((chapter) => `
@@ -256,18 +288,13 @@ function openChapterDetail(chapterId) {
           </li>
         `).join('')}
       </ul>
-
-      <p class="note">
-        Sumber: glosarium buku Bahasa Arab MA Kelas X (halaman 90–95), dicek secara visual.
-        Pengelompokan kosakata per bab berdasarkan tema dan <strong>perlu diverifikasi dengan teks bab</strong>.
-      </p>
     </div>
   `;
 
   showView('detail', 'materi');
 }
 
-/* ---------- 7. HALAMAN PERMAINAN (PILIH BAB) ---------- */
+/* ---------- PILIH BAB ---------- */
 
 function renderChapterChips() {
   $('#chapter-chips').innerHTML = CHAPTERS.map((chapter) => `
@@ -282,7 +309,7 @@ function selectChapter(chapterId) {
   renderChapterChips();
 }
 
-/* ---------- 8. MULAI PERMAINAN ---------- */
+/* ---------- MULAI PERMAINAN ---------- */
 
 function startGame(gameKey) {
   const chapter = getChapter(app.chapterId);
@@ -299,7 +326,6 @@ function startGame(gameKey) {
   renderGame();
 }
 
-// Menampilkan permainan yang sedang berjalan ke layar
 function renderGame() {
   const game = app.game;
   if (!game) return;
@@ -314,24 +340,15 @@ function renderGame() {
   refreshIcons();
 }
 
-/* ---------- 9. PERMAINAN A — TEBAK GAMBAR ---------- */
+/* ---------- PERMAINAN A — TEBAK GAMBAR ---------- */
 
 function createGameA(chapter) {
   const questions = pickRandom(chapter.words, QUESTION_COUNT).map((word) => {
-    // 3 pengecoh dari bab yang sama, lalu diacak bersama jawaban benar
     const distractors = shuffle(chapter.words.filter((item) => item.arab !== word.arab)).slice(0, 3);
     return { word, options: shuffle([word, ...distractors]) };
   });
 
-  return {
-    index: 0,
-    questions,
-    total: questions.length,
-    correct: 0,
-    answered: false,
-    selected: null,
-    feedback: null
-  };
+  return { index: 0, questions, total: questions.length, correct: 0, answered: false, selected: null, feedback: null };
 }
 
 function renderGameA(game) {
@@ -343,10 +360,7 @@ function renderGameA(game) {
       if (option.arab === question.word.arab) stateClass = 'is-correct';
       else if (optionIndex === game.selected) stateClass = 'is-wrong';
     }
-    return `
-      <button class="option-btn arab ${stateClass}" dir="rtl"
-        data-action="answer-a" data-option="${optionIndex}"
-        ${game.answered ? 'disabled' : ''}>${option.arab}</button>`;
+    return `<button class="option-btn arab ${stateClass}" dir="rtl" data-action="answer-a" data-option="${optionIndex}" ${game.answered ? 'disabled' : ''}>${option.arab}</button>`;
   }).join('');
 
   return `
@@ -386,33 +400,30 @@ function nextGameA() {
   if (!game.answered) return;
 
   game.index++;
-  if (game.index >= game.total) {
-    finishGame();
-    return;
-  }
+  if (game.index >= game.total) { finishGame(); return; }
+
   game.answered = false;
   game.selected = null;
   game.feedback = null;
   renderGame();
 }
 
-/* ---------- 10. PERMAINAN B — COCOKKAN ARTI ---------- */
+/* ---------- PERMAINAN B — COCOKKAN ARTI ---------- */
 
 function createGameB(chapter) {
   const pairs = pickRandom(chapter.words, QUESTION_COUNT).map((word, id) => ({ id, word }));
 
   return {
-    pairs,
-    leftItems: shuffle(pairs),    // kolom kosakata Arab
-    rightItems: shuffle(pairs),   // kolom arti Indonesia
+    leftItems: shuffle(pairs),
+    rightItems: shuffle(pairs),
+    total: pairs.length,
     selectedLeftId: null,
     matchedIds: [],
-    wrongCounts: {},              // jumlah salah per pasangan
+    wrongCounts: {},
     wrongAttempts: 0,
     flashLeft: null,
     flashRight: null,
-    correct: 0,                   // pasangan benar pada percobaan pertama
-    total: pairs.length,
+    correct: 0,
     feedback: { type: 'info', text: 'Pilih satu kosakata Arab, lalu pilih artinya yang sesuai.' }
   };
 }
@@ -431,11 +442,7 @@ function renderGameB(game) {
 
   const rightHtml = game.rightItems.map((pair) => {
     const matched = game.matchedIds.includes(pair.id);
-    const classes = [
-      'match-btn',
-      matched ? 'is-matched' : '',
-      game.flashRight === pair.id ? 'is-wrong' : ''
-    ].join(' ');
+    const classes = ['match-btn', matched ? 'is-matched' : '', game.flashRight === pair.id ? 'is-wrong' : ''].join(' ');
     return `<button class="${classes}" data-action="pick-b-right" data-id="${pair.id}" ${matched ? 'disabled' : ''}>${pair.word.arti}</button>`;
   }).join('');
 
@@ -462,7 +469,6 @@ function renderGameB(game) {
 function pickLeftB(pairId) {
   const game = app.game;
   if (game.matchedIds.includes(pairId)) return;
-
   game.selectedLeftId = pairId;
   game.feedback = { type: 'info', text: 'Sekarang pilih arti yang sesuai.' };
   renderGame();
@@ -481,14 +487,12 @@ function pickRightB(pairId) {
   const leftId = game.selectedLeftId;
 
   if (leftId === pairId) {
-    // Pasangan benar
-    if (!game.wrongCounts[pairId]) game.correct++;   // hanya dihitung jika benar di percobaan pertama
+    if (!game.wrongCounts[pairId]) game.correct++; // hanya benar pada percobaan pertama
     game.matchedIds.push(pairId);
     game.selectedLeftId = null;
     game.feedback = { type: 'ok', text: 'Tepat! Pasangan benar.' };
     renderGame();
   } else {
-    // Pasangan salah
     game.wrongCounts[leftId] = (game.wrongCounts[leftId] || 0) + 1;
     game.wrongAttempts++;
     game.selectedLeftId = null;
@@ -507,24 +511,18 @@ function pickRightB(pairId) {
   }
 }
 
-/* ---------- 11. PERMAINAN C — SUSUN HURUF ---------- */
+/* ---------- PERMAINAN C — SUSUN HURUF ---------- */
 
 function createGameC(chapter) {
   const questions = pickRandom(chapter.words, QUESTION_COUNT).map((word) => ({
     word,
     tiles: makeLetterTiles(word.arab),
-    picked: [],          // id huruf yang sudah dipilih, sesuai urutan
-    checked: false,      // sudah pernah diperiksa?
-    isCorrect: false     // sudah benar?
+    picked: [],
+    checked: false,
+    isCorrect: false
   }));
 
-  return {
-    index: 0,
-    questions,
-    total: questions.length,
-    correct: 0,          // soal benar pada pemeriksaan pertama
-    feedback: null
-  };
+  return { index: 0, questions, total: questions.length, correct: 0, feedback: null };
 }
 
 function renderGameC(game) {
@@ -543,7 +541,7 @@ function renderGameC(game) {
     return `<button class="letter-chip arab" data-action="pick-c" data-id="${tile.id}" ${used || question.isCorrect ? 'disabled' : ''}>${tile.text}</button>`;
   }).join('');
 
-  const hasPicked = question.picked.length > 0;
+  const canEdit = question.picked.length > 0 && !question.isCorrect;
 
   return `
     <div class="game-panel">
@@ -552,14 +550,13 @@ function renderGameC(game) {
       <p class="question-meaning">${question.word.arti}</p>
 
       <div class="answer-slot" aria-label="Jawaban">${answerHtml}</div>
-
       <div class="letter-bank">${bankHtml}</div>
 
       ${feedbackHtml(game.feedback)}
 
       <div class="game-actions">
-        <button class="btn btn-ghost" data-action="reset-c" ${hasPicked && !question.isCorrect ? '' : 'disabled'}><i data-lucide="rotate-ccw"></i> Ulangi</button>
-        <button class="btn btn-primary" data-action="check-c" ${hasPicked && !question.isCorrect ? '' : 'disabled'}><i data-lucide="check"></i> Periksa</button>
+        <button class="btn btn-ghost" data-action="reset-c" ${canEdit ? '' : 'disabled'}><i data-lucide="rotate-ccw"></i> Ulangi</button>
+        <button class="btn btn-primary" data-action="check-c" ${canEdit ? '' : 'disabled'}><i data-lucide="check"></i> Periksa</button>
         <button class="btn btn-accent" data-action="next-c" ${question.checked ? '' : 'disabled'}>Lanjut <i data-lucide="arrow-right"></i></button>
       </div>
     </div>`;
@@ -568,7 +565,6 @@ function renderGameC(game) {
 function pickLetterC(tileId) {
   const question = currentQuestion();
   if (question.isCorrect || question.picked.includes(tileId)) return;
-
   question.picked.push(tileId);
   app.game.feedback = null;
   renderGame();
@@ -577,15 +573,13 @@ function pickLetterC(tileId) {
 function unpickLetterC(tileId) {
   const question = currentQuestion();
   if (question.isCorrect) return;
-
   question.picked = question.picked.filter((id) => id !== tileId);
   app.game.feedback = null;
   renderGame();
 }
 
 function resetGameC() {
-  const question = currentQuestion();
-  question.picked = [];
+  currentQuestion().picked = [];
   app.game.feedback = null;
   renderGame();
 }
@@ -595,16 +589,12 @@ function checkGameC() {
   const question = currentQuestion();
   if (question.picked.length === 0 || question.isCorrect) return;
 
-  // Gabungkan huruf yang dipilih sesuai urutan
-  const typed = question.picked
-    .map((id) => question.tiles.find((tile) => tile.id === id).text)
-    .join('');
+  const typed = question.picked.map((id) => question.tiles.find((tile) => tile.id === id).text).join('');
   const isRight = typed === question.word.arab;
 
-  // Skor hanya dihitung pada pemeriksaan pertama
   if (!question.checked) {
     question.checked = true;
-    if (isRight) game.correct++;
+    if (isRight) game.correct++; // skor hanya dihitung pada pemeriksaan pertama
   }
 
   if (isRight) {
@@ -621,15 +611,13 @@ function nextGameC() {
   if (!currentQuestion().checked) return;
 
   game.index++;
-  if (game.index >= game.total) {
-    finishGame();
-    return;
-  }
+  if (game.index >= game.total) { finishGame(); return; }
+
   game.feedback = null;
   renderGame();
 }
 
-/* ---------- 12. SELESAI & HASIL ---------- */
+/* ---------- HASIL ---------- */
 
 function finishGame() {
   const game = app.game;
@@ -637,16 +625,12 @@ function finishGame() {
   const chapter = getChapter(app.chapterId);
 
   let note = '';
-  if (app.gameKey === 'A') {
-    note = 'Skor dihitung dari jawaban yang kamu pilih pada setiap soal.';
-  } else if (app.gameKey === 'B') {
-    note = `Pasangan dihitung benar jika tepat pada percobaan pertama. Percobaan salah: ${game.wrongAttempts} kali.`;
-  } else if (app.gameKey === 'C') {
-    note = 'Soal dihitung benar jika susunan hurufnya tepat pada pemeriksaan pertama.';
-  }
+  if (app.gameKey === 'A') note = 'Skor dihitung dari jawaban yang kamu pilih pada setiap soal.';
+  if (app.gameKey === 'B') note = `Pasangan dihitung benar jika tepat pada percobaan pertama. Percobaan salah: ${game.wrongAttempts} kali.`;
+  if (app.gameKey === 'C') note = 'Soal dihitung benar jika susunan hurufnya tepat pada pemeriksaan pertama.';
 
   app.lastResult = {
-    title: GAME_TITLES[app.gameKey],
+    title: `Permainan ${app.gameKey} — ${GAME_TITLES[app.gameKey]}`,
     chapter: `${chapter.label} · ${chapter.theme}`,
     correct: game.correct,
     total: game.total,
@@ -654,35 +638,31 @@ function finishGame() {
     note
   };
 
-  renderResult();
+  $('#hasil-title').textContent = app.lastResult.title;
+  $('#hasil-chapter').textContent = app.lastResult.chapter;
+  $('#hasil-benar').textContent = app.lastResult.correct;
+  $('#hasil-soal').textContent = app.lastResult.total;
+  $('#hasil-skor').textContent = app.lastResult.percent;
+  $('#hasil-catatan').textContent = app.lastResult.note;
+
   showView('hasil', 'permainan');
 }
 
-function renderResult() {
-  const result = app.lastResult;
-  $('#hasil-title').textContent = result.title;
-  $('#hasil-chapter').textContent = result.chapter;
-  $('#hasil-benar').textContent = result.correct;
-  $('#hasil-soal').textContent = result.total;
-  $('#hasil-skor').textContent = result.percent;
-  $('#hasil-catatan').textContent = result.note;
-}
-
-/* ---------- 13. PENANGANAN KLIK (EVENT) ---------- */
+/* ---------- KLIK & INISIALISASI ---------- */
 
 function handleAction(action, data) {
   switch (action) {
-    case 'answer-a':   answerGameA(Number(data.option)); break;
-    case 'next-a':     nextGameA(); break;
+    case 'answer-a':     answerGameA(Number(data.option)); break;
+    case 'next-a':       nextGameA(); break;
     case 'pick-b-left':  pickLeftB(Number(data.id)); break;
     case 'pick-b-right': pickRightB(Number(data.id)); break;
-    case 'finish-b':   finishGame(); break;
-    case 'pick-c':     pickLetterC(Number(data.id)); break;
-    case 'unpick-c':   unpickLetterC(Number(data.id)); break;
-    case 'reset-c':    resetGameC(); break;
-    case 'check-c':    checkGameC(); break;
-    case 'next-c':     nextGameC(); break;
-    case 'restart':    startGame(app.gameKey); break;
+    case 'finish-b':     finishGame(); break;
+    case 'pick-c':       pickLetterC(Number(data.id)); break;
+    case 'unpick-c':     unpickLetterC(Number(data.id)); break;
+    case 'reset-c':      resetGameC(); break;
+    case 'check-c':      checkGameC(); break;
+    case 'next-c':       nextGameC(); break;
+    case 'restart':      startGame(app.gameKey); break;
     default: break;
   }
 }
@@ -691,16 +671,10 @@ function handleClick(event) {
   const element = event.target;
 
   const navButton = element.closest('[data-nav]');
-  if (navButton) {
-    showView(navButton.dataset.nav);
-    return;
-  }
+  if (navButton) { showView(navButton.dataset.nav); return; }
 
   const detailButton = element.closest('[data-chapter-detail]');
-  if (detailButton) {
-    openChapterDetail(detailButton.dataset.chapterDetail);
-    return;
-  }
+  if (detailButton) { openChapterDetail(detailButton.dataset.chapterDetail); return; }
 
   const playButton = element.closest('[data-chapter-play]');
   if (playButton) {
@@ -710,24 +684,16 @@ function handleClick(event) {
   }
 
   const chipButton = element.closest('[data-select-chapter]');
-  if (chipButton) {
-    selectChapter(chipButton.dataset.selectChapter);
-    return;
-  }
+  if (chipButton) { selectChapter(chipButton.dataset.selectChapter); return; }
 
   const gameButton = element.closest('[data-game-start]');
-  if (gameButton) {
-    startGame(gameButton.dataset.gameStart);
-    return;
-  }
+  if (gameButton) { startGame(gameButton.dataset.gameStart); return; }
 
   const actionButton = element.closest('[data-action]');
   if (actionButton && !actionButton.disabled) {
     handleAction(actionButton.dataset.action, actionButton.dataset);
   }
 }
-
-/* ---------- 14. INISIALISASI ---------- */
 
 function bindEvents() {
   document.addEventListener('click', handleClick);
